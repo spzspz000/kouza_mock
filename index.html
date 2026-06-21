@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>講座一覧（モック）｜ためとこ</title>
+<style>
+  :root{
+    --ink:#1c2a33;
+    --sub:#5f7079;
+    --line:#e3e9ec;
+    --bg:#f6f8f9;
+    --card:#ffffff;
+    --accent:#1c8a8a;        /* ためとこ系の落ち着いたティール */
+    --accent-deep:#13616b;
+    --badge-bg:#eef6f6;
+    --badge-ink:#13616b;
+    --shadow:0 1px 3px rgba(20,40,50,.08),0 6px 18px rgba(20,40,50,.06);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+    color:var(--ink);
+    background:var(--bg);
+    line-height:1.6;
+  }
+
+  /* ===== モック注記バー（制作会社向け、本番では削除） ===== */
+  .mock-note{
+    background:#fff7e6;
+    border-bottom:1px solid #f0dca8;
+    color:#8a6d1f;
+    font-size:12px;
+    padding:8px 16px;
+    text-align:center;
+  }
+
+  .wrap{max-width:1120px;margin:0 auto;padding:0 16px;}
+
+  /* ===== ページ見出し ===== */
+  .page-head{padding:40px 0 8px;}
+  .page-head h1{
+    font-size:26px;margin:0 0 8px;letter-spacing:.02em;
+  }
+  .page-head p{margin:0;color:var(--sub);font-size:14px;}
+
+  /* ===== カテゴリセクション ===== */
+  .cat{padding:28px 0;}
+  .cat-head{
+    display:flex;align-items:baseline;gap:12px;margin:0 0 16px;
+  }
+  .cat-head h2{
+    font-size:19px;margin:0;
+    position:relative;padding-left:14px;
+  }
+  .cat-head h2::before{
+    content:"";position:absolute;left:0;top:.15em;bottom:.15em;width:5px;
+    background:var(--accent);border-radius:3px;
+  }
+  .cat-head .more{
+    margin-left:auto;font-size:13px;color:var(--accent-deep);text-decoration:none;
+    background:none;border:none;padding:0;cursor:pointer;font-family:inherit;
+  }
+  .cat-head .more:hover{text-decoration:underline;}
+
+  /* ===== グリッド ===== */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:20px;
+  }
+  @media(max-width:900px){ .grid{grid-template-columns:repeat(2,1fr);} }
+  @media(max-width:520px){ .grid{grid-template-columns:1fr;} }
+  @media(max-width:600px){ .m-close-bottom{display:block;} }
+
+  /* ===== カード ===== */
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:12px;
+    overflow:hidden;cursor:pointer;text-align:left;padding:0;font:inherit;color:inherit;
+    transition:transform .15s ease, box-shadow .15s ease;
+    display:flex;flex-direction:column;
+  }
+  .card:hover{transform:translateY(-3px);box-shadow:var(--shadow);}
+  .card:focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
+
+  .thumb{
+    position:relative;aspect-ratio:16/9;background:#cfd9dd;
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+  }
+  /* プレースホルダーのサムネ柄 */
+  .thumb.ph{
+    background:
+      linear-gradient(135deg,#d7e2e5 0%,#c3d1d6 100%);
+  }
+  .thumb.ph::after{
+    content:"サムネイル";color:#8fa3ab;font-size:13px;letter-spacing:.08em;
+  }
+  .thumb .badge{
+    position:absolute;left:8px;bottom:8px;
+    background:var(--badge-bg);color:var(--badge-ink);
+    font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;
+    border:1px solid #d4e6e6;
+  }
+  .play{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    opacity:0;transition:opacity .15s ease;
+  }
+  .card:hover .play{opacity:1;}
+  .play span{
+    width:46px;height:46px;border-radius:50%;
+    background:rgba(19,97,107,.85);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .play span::before{
+    content:"";border-style:solid;border-width:8px 0 8px 13px;
+    border-color:transparent transparent transparent #fff;margin-left:3px;
+  }
+
+  .card-body{padding:12px 13px 14px;display:flex;flex-direction:column;gap:6px;flex:1;}
+  .c-title{font-size:14px;font-weight:700;line-height:1.45;margin:0;}
+  .c-sub{font-size:12px;color:var(--sub);margin:0;}
+  .c-lecturer{font-size:12px;color:var(--sub);margin-top:auto;display:flex;align-items:center;gap:5px;}
+  .c-lecturer::before{
+    content:"";width:16px;height:16px;border-radius:50%;background:#d2dde1;flex:0 0 auto;
+  }
+
+  /* ===== セクション区切り（動画ゾーン / テキストゾーン） ===== */
+  .zone-divider{
+    border:none;border-top:1px solid var(--line);margin:36px 0 4px;
+  }
+
+  /* ===== テキストコンテンツ用グリッド（やや細かく並べる） ===== */
+  .grid-text{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
+  }
+  @media(max-width:760px){ .grid-text{grid-template-columns:repeat(2,1fr);} }
+  @media(max-width:480px){ .grid-text{grid-template-columns:1fr;} }
+
+  /* ===== テキストカード（文字主役・横長） ===== */
+  .tcard{
+    background:var(--card);border:1px solid var(--line);border-radius:10px;
+    cursor:pointer;text-align:left;font:inherit;color:inherit;
+    padding:14px 16px;display:flex;flex-direction:column;gap:8px;
+    border-left:4px solid var(--accent);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .tcard:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
+  .tcard:focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
+  .tcard-top{display:flex;align-items:center;gap:8px;}
+  .tcard-type{
+    font-size:10.5px;font-weight:700;color:#fff;background:var(--accent);
+    padding:2px 7px;border-radius:4px;letter-spacing:.04em;flex:0 0 auto;
+  }
+  .tcard-badge{
+    font-size:11px;font-weight:700;color:var(--badge-ink);background:var(--badge-bg);
+    padding:2px 7px;border-radius:5px;border:1px solid #d4e6e6;margin-left:auto;
+  }
+  .tcard-title{font-size:14px;font-weight:700;line-height:1.45;margin:0;}
+  .tcard-lecturer{font-size:12px;color:var(--sub);margin:0;display:flex;align-items:center;gap:5px;}
+  .tcard-lecturer::before{
+    content:"";width:14px;height:14px;border-radius:50%;background:#d2dde1;flex:0 0 auto;
+  }
+
+  /* ===== モーダル ===== */
+  .overlay{
+    position:fixed;inset:0;background:rgba(15,30,38,.55);
+    display:none;align-items:center;justify-content:center;padding:16px;z-index:50;
+  }
+  .overlay.open{display:flex;}
+  .modal{
+    background:#fff;border-radius:14px;max-width:440px;width:100%;
+    overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3);
+    animation:pop .18s ease;max-height:92vh;display:flex;flex-direction:column;
+  }
+  @keyframes pop{from{transform:scale(.96);opacity:0;}to{transform:scale(1);opacity:1;}}
+  .modal .m-thumb{
+    aspect-ratio:16/9;background:linear-gradient(135deg,#d7e2e5,#c3d1d6);
+    display:flex;align-items:center;justify-content:center;color:#8fa3ab;font-size:13px;flex:0 0 auto;
+  }
+  /* 複数サムネ版（すべて見る用） */
+  .m-thumb-grid{
+    display:none;
+    grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;
+    background:#eef3f4;flex:0 0 auto;position:relative;
+  }
+  .m-thumb-grid span{
+    aspect-ratio:16/9;border-radius:4px;
+    background:linear-gradient(135deg,#d7e2e5,#c3d1d6);
+  }
+  .m-thumb-grid::after{
+    content:"";position:absolute;inset:0;z-index:0;
+    background:linear-gradient(to bottom,rgba(238,243,244,0) 55%,rgba(238,243,244,.9) 100%);
+    pointer-events:none;
+  }
+  .modal .m-body{padding:18px 22px 22px;text-align:center;overflow-y:auto;}
+  .modal .m-title{font-size:15px;font-weight:700;margin:0 0 4px;}
+  .modal .m-lead{font-size:13px;color:var(--sub);margin:0 0 16px;}
+
+  /* プラン一覧 */
+  .plan-list{display:flex;flex-direction:column;gap:10px;text-align:left;}
+  .plan{
+    display:flex;align-items:center;gap:12px;
+    border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+    text-decoration:none;color:inherit;transition:border-color .15s ease,background .15s ease;
+  }
+  .plan:hover{border-color:var(--accent);background:#f4fafa;}
+  .plan-info{flex:1;min-width:0;}
+  .plan-name{font-size:14px;font-weight:700;margin:0;}
+  .plan-desc{font-size:11.5px;color:var(--sub);margin:2px 0 0;}
+  .plan-price{font-size:14px;font-weight:700;color:var(--accent-deep);white-space:nowrap;}
+  .plan-go{
+    width:22px;height:22px;border-radius:50%;background:var(--accent);
+    display:flex;align-items:center;justify-content:center;flex:0 0 auto;
+  }
+  .plan-go::before{
+    content:"";border-style:solid;border-width:5px 0 5px 7px;
+    border-color:transparent transparent transparent #fff;margin-left:2px;
+  }
+  .m-allplans{
+    display:block;margin-top:14px;font-size:12px;color:var(--sub);text-decoration:underline;
+  }
+  .m-login{
+    display:block;margin-top:14px;font-size:13px;color:var(--accent-deep);
+    text-decoration:none;
+  }
+  .m-login:hover{text-decoration:underline;}
+  .m-close-bottom{
+    display:none;margin:18px auto 0;padding:11px 28px;
+    background:#fff;border:1px solid var(--line);border-radius:8px;
+    font-size:14px;color:var(--sub);cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .m-close-bottom:hover{background:#f4f6f7;}
+  .m-close{
+    position:absolute;top:10px;right:10px;z-index:5;
+    width:36px;height:36px;border-radius:50%;
+    background:rgba(15,30,38,.55);border:none;color:#fff;
+    font-size:24px;line-height:36px;text-align:center;cursor:pointer;
+    -webkit-tap-highlight-color:transparent;padding:0;
+  }
+  .m-close:hover{background:rgba(15,30,38,.75);}
+  .m-close:focus-visible{outline:3px solid #fff;outline-offset:2px;}
+  .modal-wrap{position:relative;}
+
+  /* ===== 最下部「すべての講座はこちら」 ===== */
+  .all-courses{text-align:center;padding:40px 0 56px;}
+  .all-courses-btn{
+    display:inline-block;padding:15px 44px;border-radius:10px;
+    background:var(--accent);color:#fff;font-size:15px;font-weight:700;
+    text-decoration:none;transition:background .15s ease;
+    box-shadow:0 2px 8px rgba(19,97,107,.2);
+  }
+  .all-courses-btn:hover{background:var(--accent-deep);}
+</style>
+</head>
+<body>
+
+<div class="mock-note">これは完成イメージのモックです（クリックでモーダルが開きます）。講座名・講師名・サムネ・ポイントはWordPressで差し替え。「新人薬剤師100の壁」のみ実データ。プラン名・価格・リンクは実データ。</div>
+
+<div class="wrap">
+  <div class="page-head">
+    <h1>講座一覧</h1>
+    <p>ためとこで学べる講座の一部をご紹介します。気になる講座をクリックしてください。</p>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- 人気の講座 -->
+  <section class="cat">
+    <div class="cat-head">
+      <h2>人気の講座</h2>
+      <button type="button" class="more">他の講座をみる ›</button>
+    </div>
+    <div class="grid" id="grid-popular"></div>
+  </section>
+
+  <!-- テキストで受講 -->
+  <section class="cat">
+    <div class="cat-head">
+      <h2>テキストで受講</h2>
+      <button type="button" class="more">他の講座をみる ›</button>
+    </div>
+    <div class="grid-text" id="grid-textcontent"></div>
+  </section>
+
+  <!-- 実務に役立つ -->
+  <section class="cat">
+    <div class="cat-head">
+      <h2>実務に役立つ</h2>
+      <button type="button" class="more">他の講座をみる ›</button>
+    </div>
+    <div class="grid" id="grid-practical"></div>
+  </section>
+
+  <!-- 新着講座 -->
+  <section class="cat">
+    <div class="cat-head">
+      <h2>新着講座</h2>
+      <button type="button" class="more">他の講座をみる ›</button>
+    </div>
+    <div class="grid" id="grid-new"></div>
+  </section>
+
+  <div class="all-courses">
+    <a class="all-courses-btn" href="https://www.ytl.jp/tametoko_manual/">すべての講座はこちら</a>
+  </div>
+
+</div>
+
+<!-- モーダル -->
+<div class="overlay" id="overlay">
+  <div class="modal modal-wrap" role="dialog" aria-modal="true" aria-labelledby="m-title">
+    <button class="m-close" id="m-close" aria-label="閉じる">×</button>
+    <div class="m-thumb" id="m-thumb-single">サムネイル</div>
+    <div class="m-thumb-grid" id="m-thumb-grid">
+      <span></span><span></span><span></span>
+      <span></span><span></span><span></span>
+    </div>
+    <div class="m-body">
+      <p class="m-title" id="m-title">講座タイトル</p>
+      <p class="m-lead" id="m-lead">この講座を受講するには、プランへのご登録が必要です。ご希望のプランをお選びください。</p>
+
+      <div class="plan-list">
+        <a class="plan" href="https://tametoko.jp/checkout/monthly-plan">
+          <div class="plan-info">
+            <p class="plan-name">月額プラン</p>
+            <p class="plan-desc">まずは気軽に受講をはじめたい方に</p>
+          </div>
+          <span class="plan-price">¥990/月</span>
+          <span class="plan-go"></span>
+        </a>
+
+        <a class="plan" href="https://tametoko.jp/checkout/10-credit-plan">
+          <div class="plan-info">
+            <p class="plan-name">10単位プラン</p>
+            <p class="plan-desc">更新に向けて計画的に学習したい方に</p>
+          </div>
+          <span class="plan-price">¥14,300/年</span>
+          <span class="plan-go"></span>
+        </a>
+
+        <a class="plan" href="https://tametoko.jp/checkout/20-credit-plan">
+          <div class="plan-info">
+            <p class="plan-name">20単位プラン</p>
+            <p class="plan-desc">短期間で集中的に取得したい方に</p>
+          </div>
+          <span class="plan-price">¥16,500/年</span>
+          <span class="plan-go"></span>
+        </a>
+
+        <a class="plan" href="https://tametoko.jp/checkout/40-credit-plan">
+          <div class="plan-info">
+            <p class="plan-name">ためとこオリジナル40単位パック</p>
+            <p class="plan-desc">1年以内に新規取得を目指す方に</p>
+          </div>
+          <span class="plan-price">¥19,800/年</span>
+          <span class="plan-go"></span>
+        </a>
+      </div>
+
+      <a class="m-allplans" href="https://info.tametoko.jp/plan/">すべてのプランを比較する</a>
+      <a class="m-login" href="https://tametoko.jp/?page=signup">【会員の方はこちら】ログインして受講</a>
+      <button type="button" class="m-close-bottom" id="m-close-bottom">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---- ダミーデータ生成（本番はWordPress側で差し替え） ----
+  const ph = (title, sub, lec, pt) => ({title, sub, lec, pt});
+
+  const popular = [
+    ph("講座タイトルが入ります","サブタイトルが入ります","講師名 先生","90"),
+    ph("講座タイトルが入ります","サブタイトルが入ります","講師名 先生","90"),
+    ph("講座タイトルが入ります","サブタイトルが入ります","講師名 先生","120"),
+    ph("講座タイトルが入ります","サブタイトルが入ります","講師名 先生","90"),
+  ];
+
+  const practical = [
+    ph("新人薬剤師100の壁","処方箋の見方編 vol.1","佐方一生 先生","15"),
+    ph("新人薬剤師100の壁","薬の管理編 vol.1","佐方一生 先生","15"),
+    ph("新人薬剤師100の壁","処方内容編 vol.1","佐方一生 先生","15"),
+    ph("新人薬剤師100の壁","調剤報酬編 vol.1","佐方一生 先生","15"),
+  ];
+
+  const newer = [
+    ph("講座タイトルが入ります","サブタイトルが入ります","講師名 先生","40"),
+    ph("講座タイトルが入ります","サブタイトルが入ります","講師名 先生","30"),
+    ph("講座タイトルが入ります","サブタイトルが入ります","講師名 先生","50"),
+    ph("講座タイトルが入ります","サブタイトルが入ります","講師名 先生","90"),
+  ];
+
+  // テキストコンテンツ（type=種別ラベル, title, lec, pt）
+  const tc = (type, title, lec, pt) => ({type, title, lec, pt});
+  const textContent = [
+    tc("テキスト","記事タイトルが入ります","執筆者名 先生","5"),
+    tc("テキスト","記事タイトルが入ります","執筆者名 先生","5"),
+    tc("テキスト","記事タイトルが入ります","執筆者名 先生","10"),
+    tc("確認テスト","確認テストのタイトルが入ります","編集部","5"),
+    tc("テキスト","記事タイトルが入ります","執筆者名 先生","5"),
+    tc("確認テスト","確認テストのタイトルが入ります","編集部","5"),
+  ];
+
+  function cardHTML(c){
+    return `
+      <button class="card" data-title="${c.title}">
+        <div class="thumb ph">
+          <span class="badge">取得 ${c.pt}pt</span>
+          <span class="play"><span></span></span>
+        </div>
+        <div class="card-body">
+          <p class="c-title">${c.title}</p>
+          <p class="c-sub">${c.sub}</p>
+          <p class="c-lecturer">${c.lec}</p>
+        </div>
+      </button>`;
+  }
+
+  function render(id, list){
+    document.getElementById(id).innerHTML = list.map(cardHTML).join("");
+  }
+  render("grid-popular", popular);
+  render("grid-practical", practical);
+  render("grid-new", newer);
+
+  function tcardHTML(c){
+    return `
+      <button class="tcard" data-title="${c.title}">
+        <div class="tcard-top">
+          <span class="tcard-type">${c.type}</span>
+          <span class="tcard-badge">取得 ${c.pt}pt</span>
+        </div>
+        <p class="tcard-title">${c.title}</p>
+        <p class="tcard-lecturer">${c.lec}</p>
+      </button>`;
+  }
+  document.getElementById("grid-textcontent").innerHTML =
+    textContent.map(tcardHTML).join("");
+
+  // ---- モーダル制御 ----
+  const overlay      = document.getElementById("overlay");
+  const mTitle       = document.getElementById("m-title");
+  const mLead        = document.getElementById("m-lead");
+  const thumbSingle  = document.getElementById("m-thumb-single");
+  const thumbGrid    = document.getElementById("m-thumb-grid");
+
+  // 動画カードクリック：単一サムネ＋講座タイトル
+  function openForCourse(title){
+    mTitle.textContent = title;
+    mLead.textContent  = "この講座を受講するには、プランへのご登録が必要です。ご希望のプランをお選びください。";
+    thumbSingle.style.display = "flex";
+    thumbGrid.style.display   = "none";
+    overlay.classList.add("open");
+  }
+
+  // すべて見るクリック：複数サムネ＋汎用文言
+  function openForAll(){
+    mTitle.textContent = "すべての講座を受講するには";
+    mLead.textContent  = "ためとこの豊富な講座をご受講いただけます。ご希望のプランをお選びください。";
+    thumbSingle.style.display = "none";
+    thumbGrid.style.display   = "grid";
+    overlay.classList.add("open");
+  }
+
+  document.querySelectorAll(".card").forEach(btn=>{
+    btn.addEventListener("click",()=>openForCourse(btn.dataset.title));
+  });
+  document.querySelectorAll(".tcard").forEach(btn=>{
+    btn.addEventListener("click",()=>openForCourse(btn.dataset.title));
+  });
+  document.querySelectorAll(".more").forEach(link=>{
+    link.addEventListener("click",e=>{ e.preventDefault(); openForAll(); });
+  });
+
+  function close(){ overlay.classList.remove("open"); }
+  document.getElementById("m-close").addEventListener("click",close);
+  document.getElementById("m-close-bottom").addEventListener("click",close);
+  overlay.addEventListener("click",e=>{ if(e.target===overlay) close(); });
+  document.addEventListener("keydown",e=>{ if(e.key==="Escape") close(); });
+</script>
+
+</body>
+</html>
