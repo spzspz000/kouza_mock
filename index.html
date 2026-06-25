@@ -44,6 +44,7 @@
     font-size:26px;margin:0 0 8px;letter-spacing:.02em;
   }
   .page-head p{margin:0;color:var(--sub);font-size:14px;}
+  .course-count{color:var(--accent-deep);font-size:15px;}
 
   /* ===== カテゴリセクション ===== */
   .cat{padding:28px 0;}
@@ -101,20 +102,6 @@
     background:var(--badge-bg);color:var(--badge-ink);
     font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;
     border:1px solid #d4e6e6;
-  }
-  .play{
-    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    opacity:0;transition:opacity .15s ease;
-  }
-  .card:hover .play{opacity:1;}
-  .play span{
-    width:46px;height:46px;border-radius:50%;
-    background:rgba(19,97,107,.85);
-    display:flex;align-items:center;justify-content:center;
-  }
-  .play span::before{
-    content:"";border-style:solid;border-width:8px 0 8px 13px;
-    border-color:transparent transparent transparent #fff;margin-left:3px;
   }
 
   .card-body{padding:12px 13px 14px;display:flex;flex-direction:column;gap:6px;flex:1;}
@@ -243,15 +230,25 @@
   .m-close:focus-visible{outline:3px solid #fff;outline-offset:2px;}
   .modal-wrap{position:relative;}
 
-  /* ===== 最下部「すべての講座はこちら」 ===== */
-  .all-courses{text-align:center;padding:40px 0 56px;}
-  .all-courses-btn{
-    display:inline-block;padding:15px 44px;border-radius:10px;
-    background:var(--accent);color:#fff;font-size:15px;font-weight:700;
-    text-decoration:none;transition:background .15s ease;
-    box-shadow:0 2px 8px rgba(19,97,107,.2);
+  /* ===== 特別講座（バナー） ===== */
+  .banner-grid{
+    display:grid;grid-template-columns:repeat(2,1fr);gap:18px;
   }
-  .all-courses-btn:hover{background:var(--accent-deep);}
+  @media(max-width:680px){ .banner-grid{grid-template-columns:1fr;} }
+  .banner{
+    border:1px solid var(--line);border-radius:12px;overflow:hidden;
+    cursor:pointer;padding:0;background:#fff;font:inherit;display:block;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .banner:hover{transform:translateY(-3px);box-shadow:var(--shadow);}
+  .banner:focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
+  .banner img{display:block;width:100%;height:auto;}
+  .banner-ph{
+    display:flex;align-items:center;justify-content:center;
+    width:100%;aspect-ratio:768/270;
+    background:repeating-linear-gradient(45deg,#f1f5f5,#f1f5f5 12px,#e8eeef 12px,#e8eeef 24px);
+    color:var(--sub);font-size:13px;letter-spacing:.04em;
+  }
 </style>
 </head>
 <body>
@@ -261,7 +258,7 @@
 <div class="wrap">
   <div class="page-head">
     <h1>講座一覧</h1>
-    <p>ためとこで学べる講座の一部をご紹介します。気になる講座をクリックしてください。</p>
+    <p>ためとこで学べる<strong class="course-count">全430講座</strong>の一部をご紹介します。気になる講座をクリックしてください。</p>
   </div>
 </div>
 
@@ -303,9 +300,13 @@
     <div class="grid" id="grid-new"></div>
   </section>
 
-  <div class="all-courses">
-    <a class="all-courses-btn" href="https://www.ytl.jp/tametoko_manual/">すべての講座はこちら</a>
-  </div>
+  <!-- 特別講座 -->
+  <section class="cat">
+    <div class="cat-head">
+      <h2>特別講座</h2>
+    </div>
+    <div class="banner-grid" id="grid-banner"></div>
+  </section>
 
 </div>
 
@@ -398,9 +399,9 @@
     tc("テキスト","記事タイトルが入ります","執筆者名 先生","5"),
     tc("テキスト","記事タイトルが入ります","執筆者名 先生","5"),
     tc("テキスト","記事タイトルが入ります","執筆者名 先生","10"),
-    tc("確認テスト","確認テストのタイトルが入ります","編集部","5"),
     tc("テキスト","記事タイトルが入ります","執筆者名 先生","5"),
-    tc("確認テスト","確認テストのタイトルが入ります","編集部","5"),
+    tc("テキスト","記事タイトルが入ります","執筆者名 先生","5"),
+    tc("テキスト","記事タイトルが入ります","執筆者名 先生","5"),
   ];
 
   function cardHTML(c){
@@ -408,7 +409,6 @@
       <button class="card" data-title="${c.title}">
         <div class="thumb ph">
           <span class="badge">取得 ${c.pt}pt</span>
-          <span class="play"><span></span></span>
         </div>
         <div class="card-body">
           <p class="c-title">${c.title}</p>
@@ -439,6 +439,16 @@
   document.getElementById("grid-textcontent").innerHTML =
     textContent.map(tcardHTML).join("");
 
+  // 特別講座バナー（実装時は画像を差し替え、2〜4個）
+  const banners = [
+    { title:"特別講座（バナータイトル）" },
+    { title:"特別講座（バナータイトル）" },
+  ];
+  document.getElementById("grid-banner").innerHTML = banners.map(b=>`
+    <button class="banner" data-title="${b.title}">
+      <span class="banner-ph">バナー画像（差し替え）</span>
+    </button>`).join("");
+
   // ---- モーダル制御 ----
   const overlay      = document.getElementById("overlay");
   const mTitle       = document.getElementById("m-title");
@@ -468,6 +478,9 @@
     btn.addEventListener("click",()=>openForCourse(btn.dataset.title));
   });
   document.querySelectorAll(".tcard").forEach(btn=>{
+    btn.addEventListener("click",()=>openForCourse(btn.dataset.title));
+  });
+  document.querySelectorAll(".banner").forEach(btn=>{
     btn.addEventListener("click",()=>openForCourse(btn.dataset.title));
   });
   document.querySelectorAll(".more").forEach(link=>{
