@@ -38,12 +38,45 @@
 
   .wrap{max-width:1120px;margin:0 auto;padding:0 16px;}
 
-  /* ===== ページ見出し ===== */
-  .page-head{padding:40px 0 8px;}
-  .page-head h1{
-    font-size:26px;margin:0 0 8px;letter-spacing:.02em;
+  /* ===== ヒーロー帯（既存ページ「配信コンテンツ」に準拠／グレースケール） ===== */
+  .hero{
+    position:relative;
+    background:#eef1f2;
+    padding:56px 16px 72px;
+    overflow:hidden;
+    text-align:center;
   }
+  /* 背景の英字透かし */
+  .hero::before{
+    content:"LECTURES";
+    position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);
+    font-size:60px;font-weight:800;letter-spacing:.08em;
+    color:#fff;opacity:.55;white-space:nowrap;pointer-events:none;
+    z-index:0;
+  }
+  @media(max-width:600px){ .hero::before{font-size:40px;} }
+  .hero h1{
+    position:relative;z-index:1;
+    font-size:30px;margin:0;letter-spacing:.12em;color:var(--ink);
+  }
+  @media(max-width:600px){ .hero h1{font-size:24px;} }
+  /* 帯下端の波線装飾（白地の波＋ドット破線） */
+  .hero-wave{
+    position:absolute;left:0;right:0;bottom:0;line-height:0;z-index:1;
+  }
+  .hero-wave svg{display:block;width:100%;height:auto;}
+
+  /* ===== ページ見出し（リード文） ===== */
+  .page-head{padding:28px 0 8px;}
   .page-head p{margin:0;color:var(--sub);font-size:14px;}
+  .back-link{
+    text-align:center;padding:8px 0 48px;
+  }
+  .back-link a{
+    color:var(--accent-deep);font-size:14px;text-decoration:none;
+    border-bottom:1px solid currentColor;padding-bottom:1px;
+  }
+  .back-link a:hover{opacity:.7;}
   .course-count{color:var(--accent-deep);font-size:15px;}
 
   /* ===== カテゴリセクション ===== */
@@ -253,12 +286,25 @@
 </head>
 <body>
 
-<div class="mock-note">これは完成イメージのモックです（クリックでモーダルが開きます）。講座名・講師名・サムネ・ポイントはWordPressで差し替え。「新人薬剤師100の壁」のみ実データ。プラン名・価格・リンクは実データ。</div>
+<div class="mock-note">これは完成イメージのモックです（カードのクリックでモーダルが開きます）。特別講座バナーのみ例外で、モーダルではなく管理画面で指定したURLへ遷移します（モックではダミーURL）。講座名・講師名・サムネ・ポイントはWordPressで差し替え。「新人薬剤師100の壁」のみ実データ。プラン名・価格・リンクは実データ。</div>
+
+<header class="hero">
+  <h1>講座一覧</h1>
+  <div class="hero-wave">
+    <svg viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true">
+      <!-- ドット破線の波（帯側） -->
+      <path d="M0,52 C240,18 480,74 720,50 C960,26 1200,70 1440,44"
+            fill="none" stroke="#c4ccd0" stroke-width="2" stroke-dasharray="2 7" stroke-linecap="round"/>
+      <!-- 白地の波（コンテンツ側の下地） -->
+      <path d="M0,62 C240,30 480,84 720,60 C960,36 1200,80 1440,54 L1440,90 L0,90 Z"
+            fill="#ffffff"/>
+    </svg>
+  </div>
+</header>
 
 <div class="wrap">
   <div class="page-head">
-    <h1>講座一覧</h1>
-    <p>ためとこで学べる<strong class="course-count">全430講座</strong>の一部をご紹介します。気になる講座をクリックしてください。</p>
+    <p>ためとこには、認定単位の取得につながる講座が<strong class="course-count">全430講座</strong>そろっています。テーマや学び方から、いま気になる講座を探してみてください。各講座をクリックすると、受講プランの詳細をご覧いただけます。</p>
   </div>
 </div>
 
@@ -307,6 +353,10 @@
     </div>
     <div class="banner-grid" id="grid-banner"></div>
   </section>
+
+  <div class="back-link">
+    <a href="https://info.tametoko.jp/contents/">‹ 配信コンテンツに戻る</a>
+  </div>
 
 </div>
 
@@ -439,15 +489,16 @@
   document.getElementById("grid-textcontent").innerHTML =
     textContent.map(tcardHTML).join("");
 
-  // 特別講座バナー（実装時は画像を差し替え、2〜4個）
+  // 特別講座バナー（実装時は画像・リンク先を差し替え、2〜4個）
+  // ※他カードと異なり、モーダルではなく管理画面で指定した任意URLへ遷移する
   const banners = [
-    { title:"特別講座（バナータイトル）" },
-    { title:"特別講座（バナータイトル）" },
+    { title:"特別講座（バナータイトル）", url:"https://example.com/special-lp-1" },
+    { title:"特別講座（バナータイトル）", url:"https://example.com/special-lp-2" },
   ];
   document.getElementById("grid-banner").innerHTML = banners.map(b=>`
-    <button class="banner" data-title="${b.title}">
+    <a class="banner" href="${b.url}">
       <span class="banner-ph">バナー画像（差し替え）</span>
-    </button>`).join("");
+    </a>`).join("");
 
   // ---- モーダル制御 ----
   const overlay      = document.getElementById("overlay");
@@ -478,9 +529,6 @@
     btn.addEventListener("click",()=>openForCourse(btn.dataset.title));
   });
   document.querySelectorAll(".tcard").forEach(btn=>{
-    btn.addEventListener("click",()=>openForCourse(btn.dataset.title));
-  });
-  document.querySelectorAll(".banner").forEach(btn=>{
     btn.addEventListener("click",()=>openForCourse(btn.dataset.title));
   });
   document.querySelectorAll(".more").forEach(link=>{
