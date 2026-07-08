@@ -66,7 +66,7 @@
   }
   .hero-wave svg{display:block;width:100%;height:auto;}
 
-  /* ===== ページ見出し（リード文） ===== */
+  /* ===== ページ見出し（説明文） ===== */
   .page-head{padding:28px 0 8px;}
   .page-head p{margin:0;color:var(--sub);font-size:14px;}
   .back-link{
@@ -150,36 +150,42 @@
     border:none;border-top:1px solid var(--line);margin:36px 0 4px;
   }
 
-  /* ===== テキストコンテンツ用グリッド（やや細かく並べる） ===== */
+  /* ===== テキスト講座グリッド ===== */
   .grid-text{
-    display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
+    display:grid;grid-template-columns:repeat(2,1fr);gap:14px;
   }
-  @media(max-width:760px){ .grid-text{grid-template-columns:repeat(2,1fr);} }
-  @media(max-width:480px){ .grid-text{grid-template-columns:1fr;} }
+  @media(max-width:640px){ .grid-text{grid-template-columns:1fr;} }
 
-  /* ===== テキストカード（文字主役・横長） ===== */
+  /* ===== テキストカード（動画カードと形で区別：横長・紙面イメージ） ===== */
   .tcard{
-    background:var(--card);border:1px solid var(--line);border-radius:10px;
-    cursor:pointer;text-align:left;font:inherit;color:inherit;
-    padding:14px 16px;display:flex;flex-direction:column;gap:8px;
-    border-left:4px solid var(--accent);
-    transition:transform .15s ease, box-shadow .15s ease;
+    display:grid;grid-template-columns:160px 1fr;gap:14px;align-items:center;
+    background:
+      repeating-linear-gradient(#fff,#fff 30px,#eef3f4 31px,#fff 32px);
+    border:1px solid var(--line);border-left:4px solid var(--accent);
+    border-radius:10px;cursor:pointer;text-align:left;font:inherit;color:inherit;
+    padding:14px 16px;transition:transform .15s ease, box-shadow .15s ease;
   }
+  @media(max-width:480px){ .tcard{grid-template-columns:120px 1fr;gap:12px;} }
   .tcard:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
   .tcard:focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
-  .tcard-top{display:flex;align-items:center;gap:8px;}
-  .tcard-type{
-    font-size:10.5px;font-weight:700;color:#fff;background:var(--accent);
-    padding:2px 7px;border-radius:4px;letter-spacing:.04em;flex:0 0 auto;
+  /* 左：16:9サムネ（動画と同じ比率。左上に種別ラベル） */
+  .tcard-thumb{
+    position:relative;aspect-ratio:16/9;border-radius:8px;overflow:hidden;
+    background:linear-gradient(135deg,#d7e2e5 0%,#c3d1d6 100%);
+    display:flex;align-items:center;justify-content:center;
   }
+  .tcard-thumb::after{content:"サムネイル";color:#8fa3ab;font-size:11px;letter-spacing:.06em;}
+  .tcard-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .tcard-main{display:flex;flex-direction:column;gap:6px;min-width:0;}
   .tcard-badge{
+    align-self:flex-start;
     font-size:11px;font-weight:700;color:var(--badge-ink);background:var(--badge-bg);
-    padding:2px 7px;border-radius:5px;border:1px solid #d4e6e6;margin-left:auto;
+    padding:2px 8px;border-radius:5px;border:1px solid #d4e6e6;
   }
   .tcard-title{font-size:14px;font-weight:700;line-height:1.45;margin:0;}
-  .tcard-lecturer{font-size:12px;color:var(--sub);margin:0;display:flex;align-items:center;gap:5px;}
+  .tcard-lecturer{font-size:12px;color:var(--sub);margin:2px 0 0;display:flex;align-items:center;gap:5px;}
   .tcard-lecturer::before{
-    content:"";width:14px;height:14px;border-radius:50%;background:#d2dde1;flex:0 0 auto;
+    content:"";width:16px;height:16px;border-radius:50%;background:#d2dde1;flex:0 0 auto;
   }
 
   /* ===== モーダル ===== */
@@ -286,7 +292,7 @@
 </head>
 <body>
 
-<div class="mock-note">これは完成イメージのモックです（カードのクリックでモーダルが開きます）。特別講座バナーのみ例外で、モーダルではなく管理画面で指定したURLへ遷移します（モックではダミーURL）。講座名・講師名・サムネ・ポイントはWordPressで差し替え。「新人薬剤師100の壁」のみ実データ。プラン名・価格・リンクは実データ。</div>
+<div class="mock-note">これは完成イメージのモックです（カードのクリックでモーダルが開きます）。サムネ左上のバッジで動画／テキストを区別します。特別講座バナーのみ例外で、モーダルではなく管理画面で指定したURLへ遷移します（モックではダミーURL）。講座名・講師名・サムネ・ポイントはWordPressで差し替え。「新人薬剤師100の壁」のみ実データ。プラン名・価格・リンクは実データ。</div>
 
 <header class="hero">
   <h1>講座一覧</h1>
@@ -304,7 +310,7 @@
 
 <div class="wrap">
   <div class="page-head">
-    <p>ためとこには、認定単位の取得につながる講座が<strong class="course-count">全430講座</strong>そろっています。テーマや学び方から、いま気になる講座を探してみてください。各講座をクリックすると、受講プランの詳細をご覧いただけます。</p>
+    <p>ためとこが用意している約430の講座の中から、一部の講座を紹介します。いずれも研修認定単位の取得につながる講座です。テーマや学び方から、気になる講座を探してみてください。</p>
   </div>
 </div>
 
@@ -443,15 +449,14 @@
     ph("講座タイトルが入ります","サブタイトルが入ります","講師名 先生","90"),
   ];
 
-  // テキストコンテンツ（type=種別ラベル, title, lec, pt）
-  const tc = (type, title, lec, pt) => ({type, title, lec, pt});
+  // テキストコンテンツ（サムネ付きカード。type=テキストで種別バッジ表示）
   const textContent = [
-    tc("テキスト","記事タイトルが入ります","執筆者名 先生","5"),
-    tc("テキスト","記事タイトルが入ります","執筆者名 先生","5"),
-    tc("テキスト","記事タイトルが入ります","執筆者名 先生","10"),
-    tc("テキスト","記事タイトルが入ります","執筆者名 先生","5"),
-    tc("テキスト","記事タイトルが入ります","執筆者名 先生","5"),
-    tc("テキスト","記事タイトルが入ります","執筆者名 先生","5"),
+    { type:"テキスト", title:"記事タイトルが入ります", lec:"執筆者名 先生", pt:"5" },
+    { type:"テキスト", title:"記事タイトルが入ります", lec:"執筆者名 先生", pt:"5" },
+    { type:"テキスト", title:"記事タイトルが入ります", lec:"執筆者名 先生", pt:"10" },
+    { type:"テキスト", title:"記事タイトルが入ります", lec:"執筆者名 先生", pt:"5" },
+    { type:"テキスト", title:"記事タイトルが入ります", lec:"執筆者名 先生", pt:"5" },
+    { type:"テキスト", title:"記事タイトルが入ります", lec:"執筆者名 先生", pt:"5" },
   ];
 
   function cardHTML(c){
@@ -478,12 +483,12 @@
   function tcardHTML(c){
     return `
       <button class="tcard" data-title="${c.title}">
-        <div class="tcard-top">
-          <span class="tcard-type">${c.type}</span>
+        <div class="tcard-thumb"></div>
+        <div class="tcard-main">
           <span class="tcard-badge">取得 ${c.pt}pt</span>
+          <p class="tcard-title">${c.title}</p>
+          <p class="tcard-lecturer">${c.lec}</p>
         </div>
-        <p class="tcard-title">${c.title}</p>
-        <p class="tcard-lecturer">${c.lec}</p>
       </button>`;
   }
   document.getElementById("grid-textcontent").innerHTML =
